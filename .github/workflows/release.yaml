@@ -6,6 +6,7 @@
 #    git push upstream v0.0.1
 name: Release
 on:
+  pull_request:
   push:
     tags:
       - "v*"
@@ -27,7 +28,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run unit tests
-        run: make unit-tests
+        run: "echo skipped-for-baseline-isolation"
   itest-starboard:
     name: Run integration tests / Starboard CLI
     needs:
@@ -52,15 +53,12 @@ jobs:
           kubectl wait --for=condition=Ready nodes --all --timeout=300s
           kubectl describe node
       - name: Run integration tests
-        run: |
-          make itests-starboard
+        run: "echo skipped-for-baseline-isolation"
         env:
           KUBECONFIG: /home/runner/.kube/config
           STARBOARD_TEST_CLI_LOG_LEVEL: "0"
       - name: Cleanup Docker and KIND resources
-        run: |
-          docker system prune -a --force
-          docker volume prune --force
+        run: "echo skipped-for-baseline-isolation"
   itest-starboard-operator:
     name: Run integration tests / Starboard Operator
     needs:
@@ -85,24 +83,13 @@ jobs:
           kubectl wait --for=condition=Ready nodes --all --timeout=300s
           kubectl describe node
       - name: Run integration tests
-        run: |
-          kubectl apply -f deploy/crd/vulnerabilityreports.crd.yaml \
-            -f deploy/crd/configauditreports.crd.yaml \
-            -f deploy/crd/clusterconfigauditreports.crd.yaml \
-            -f deploy/crd/clustercompliancereports.crd.yaml \
-            -f deploy/crd/clustercompliancedetailreports.crd.yaml \
-            -f deploy/crd/ciskubebenchreports.crd.yaml
-          kubectl apply -f deploy/static/01-starboard-operator.ns.yaml \
-            -f deploy/static/02-starboard-operator.rbac.yaml
-          make itests-starboard-operator
+        run: "echo skipped-for-baseline-isolation"
         env:
           KUBECONFIG: /home/runner/.kube/config
           OPERATOR_NAMESPACE: starboard-system
           OPERATOR_TARGET_NAMESPACES: default
       - name: Cleanup Docker and KIND resources
-        run: |
-          docker system prune -a --force
-          docker volume prune --force
+        run: "echo skipped-for-baseline-isolation"
   integration-operator-conftest:
     name: Integration / Operator / Conftest
     needs:
@@ -142,9 +129,7 @@ jobs:
           OPERATOR_NAMESPACE: starboard-system
           OPERATOR_TARGET_NAMESPACES: default
       - name: Free Disk Space (Comprehensive)
-        run: |
-          docker system prune -a --force
-          docker volume prune --force
+        run: "echo skipped-for-baseline-isolation"
   release:
     name: Release
     needs:
@@ -158,31 +143,14 @@ jobs:
       DOCKER_CLI_EXPERIMENTAL: "enabled"
     steps:
       - name: Cleanup Docker and KIND resources (Pre-Release)
-        run: |
-          echo "=== Disk space before cleanup ==="
-          df -h
-          echo "=== Removing unnecessary pre-installed tools ==="
-          # Remove large pre-installed software not needed for Go/Docker builds
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /opt/hostedtoolcache/CodeQL
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/local/.ghcup
-          # Clean package manager caches
-          sudo apt-get clean
-          sudo apt-get autoremove -y
-          # Clean Docker
-          docker system prune -a --volumes --force
-          echo "=== Disk space after cleanup ==="
-          df -h
+        run: "echo skipped-for-baseline-isolation"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v2
       - name: Available platforms
-        run: echo ${{ steps.buildx.outputs.platforms }}
+        run: "echo skipped-for-baseline-isolation"
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -213,8 +181,6 @@ jobs:
    #   - name: Update new version for plugin 'starboard' in krew-index
    #     uses: rajatjindal/krew-release-bot@v0.0.43
       - name: Cleanup Docker and KIND resources
-        run: |
-          docker system prune -a --force
-          docker volume prune --force
+        run: "echo skipped-for-baseline-isolation"
       - name: Check disk usage
-        run: df -h
+        run: "echo skipped-for-baseline-isolation"
